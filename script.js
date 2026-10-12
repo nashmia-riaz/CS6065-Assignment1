@@ -64,14 +64,69 @@ function ArrangeButtons(){
     mlButton.css("top",  (centerPos.top + pointOnCircle.y) + 'px');
 }
 
-var click = 0;
+var noOfTrials = 0;
+var blockNo = 1;
+var currentTargetElement = null;
+var clickableButtons = $('.two');
+var currentState = 'start'
+
 function Start(){
-    click++;
-    $('.click').hide();
-    if(click%3 === 0){
-        $('.click').show();
-    }else if(click%2 === 0)
-        $('.four').show();
-        else
-            $('.two').show();
+    $('.start').prop('disabled', true);   
+    $('.start').addClass('inactive');
+    $('.start').removeClass('active');
+    $('.start').html('Start');
+
+    const randomIndex = Math.floor(Math.random() * clickableButtons.length)
+    currentTargetElement = clickableButtons.eq(randomIndex);
+    currentTargetElement.addClass('active');
+    currentTargetElement.removeClass('inactive');
+    currentTargetElement.prop('disabled', false);
+
+    currentState = 'target';
 }
+
+function ShowBlockButtons(){
+    $('.click').hide();
+
+    if(blockNo === 1)
+        clickableButtons = $('.two');        
+    else if (blockNo === 2){
+        clickableButtons = $('.four');
+    }else if(blockNo === 3){
+        clickableButtons = $('.click');
+    }
+    
+    clickableButtons.show();
+}
+
+function OnClickTarget(){
+    $('audio')[0].play();
+    currentTargetElement.prop('disabled', true);
+    currentTargetElement.addClass('inactive');
+    currentTargetElement.removeClass('active');
+
+    $('.start').prop('disabled', false);
+    $('.start').addClass('active');
+    $('.start').removeClass('inactive');
+
+    noOfTrials++;
+    currentState = 'start';
+
+    if(noOfTrials === 20){
+        blockNo = 2;
+        ShowBlockButtons();
+        $('.start').html('Click to Continue');
+    }
+    else if (noOfTrials === 40)
+    {   
+        blockNo = 3;
+        ShowBlockButtons();
+        $('.start').html('Click to Continue');
+    }
+}
+
+$(document).on('mousedown', function(e){
+    if(currentState === 'start') return;
+    if(!currentTargetElement.is(e.target) && currentTargetElement.has(e.target).length ===0 )
+        console.log('misclick');
+});

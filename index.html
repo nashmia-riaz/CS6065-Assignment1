@@ -5,16 +5,20 @@
     </head>
     <body>
         <div id="start">
-            <button disabled class="click inactive four" id="tlButton">Click</button>
-            <button disabled class="click inactive" id="tcButton">Click</button>
-            <button disabled class="click inactive four" id="trButton">Click</button>
-            <button disabled class="click inactive two" id="mlButton">Click</button>
-            <button class="active" onclick="Start()">Start</button>
-            <button disabled class="click inactive two" id="mrButton">Click</button>
-            <button disabled class="click inactive four" id="blButton">Click</button>
-            <button disabled class="click inactive" id="bcButton">Click</button>
-            <button disabled class="click inactive four" id="brButton">Click</button>
-        </div>        
+            <button disabled class="click inactive four" id="tlButton" style="display: none;" onclick="OnClickTarget()">Click</button>
+            <button disabled class="click inactive" id="tcButton" style="display: none;" onclick="OnClickTarget()">Click</button>
+            <button disabled class="click inactive four" id="trButton" style="display: none;" onclick="OnClickTarget()">Click</button>
+            <button disabled class="click inactive two" id="mlButton" onclick="OnClickTarget()">Click</button>
+            <button class="active start" onclick="Start()">Start</button>
+            <button disabled class="click inactive two" id="mrButton" onclick="OnClickTarget()">Click</button>
+            <button disabled class="click inactive four" id="blButton" style="display: none;" onclick="OnClickTarget()">Click</button>
+            <button disabled class="click inactive" id="bcButton" style="display: none;" onclick="OnClickTarget()">Click</button>
+            <button disabled class="click inactive four" id="brButton" style="display: none;" onclick="OnClickTarget()">Click</button>
+        </div>
+        <audio src="button-click.mp3"></audio>  
+        <span class="credits">
+            <span>Assignment 1 - Nashmia Riaz 3802401, Shayghayegh</span>
+            <span>Button Click 1.wav by Mellau -- https://freesound.org/s/506054/ -- License: Attribution NonCommercial 4.0</span>                  
     </body>
     <script src="https://code.jquery.com/jquery-4.0.0.min.js" integrity="sha256-OaVG6prZf4v69dPg6PhVattBXkcOWQB62pdZ3ORyrao=" crossorigin="anonymous"></script>
     <script src="script.js"></script>

@@ -60,3 +60,13 @@ button.inactive{
     border: 2px solid grey;
     transform: translate(0px, 4px);
 }
+.credits{
+    color: rgba(255, 255, 255, 0.2);
+    position: fixed;
+    bottom: 20px;
+
+    span{
+        display: block;
+        text-align: center;
+    }
+}
