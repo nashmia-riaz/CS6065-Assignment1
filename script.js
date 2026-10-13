@@ -25,7 +25,7 @@ onAuthStateChanged(auth, user => {
     
 });
 
-var noOfTrials = 0;
+var noOfTrials = 1;
 var blockNo = 1;
 var currentTargetElement = null;
 var clickableButtons = $('.two');
@@ -101,20 +101,23 @@ function OnClickTarget(e){
     currentState = 'start';
     misclicks=0;
 
-    if(noOfTrials === 20){
+    if(noOfTrials === 20 && blockNo === 1)
+    {   noOfTrials = 1;
         blockNo = 2;
         ShowBlockButtons();
         $('.start').html('Click to Continue');
     }
-    else if (noOfTrials === 40)
-    {   
+    else if (noOfTrials === 20 && blockNo === 2)
+    {   noOfTrials = 1;
         blockNo = 3;
         ShowBlockButtons();
         $('.start').html('Click to Continue');
-    }else if(noOfTrials === 60){
-        $('#start').hide();
-        $('#trialsComplete').show();
-        StoreTrialComplete();
+    }else if(noOfTrials === 20 && blockNo === 3){
+        noOfTrials = 1;
+            $('#start').hide();
+            $('#trialsComplete').show();
+            StoreTrialComplete();
+        
     }
 }
 
