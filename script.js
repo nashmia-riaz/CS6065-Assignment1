@@ -22,7 +22,7 @@ const auth = getAuth(app);
 await signInAnonymously(auth);
 
 onAuthStateChanged(auth, user => {
-    console.log(user);
+    
 });
 
 var noOfTrials = 0;
@@ -32,6 +32,7 @@ var clickableButtons = $('.two');
 var currentState = 'start'
 var misclicks = 0;
 var startTime = null;
+var userId = '';
 
 function Start(e){
     $('.start').prop('disabled', true);   
@@ -64,17 +65,23 @@ function ShowBlockButtons(){
     clickableButtons.show();
 }
 
-async function StoreData(misclicks, timeTaken){
-    console.log(misclicks, timeTaken);
-    
+async function StoreData(misclicks, timeTaken){    
     await addDoc(
         collection(db, "data"),{
-            user: "002",
+            user: userId,
             block: blockNo,
             trial: noOfTrials,
             misclicks: misclicks,
             timeTaken, timeTaken,
     });
+}
+
+async function StoreTrialComplete(){
+    await addDoc(
+        collection(db, 'complete'), {
+            user:userId
+        }
+    );
 }
 
 
@@ -104,6 +111,10 @@ function OnClickTarget(e){
         blockNo = 3;
         ShowBlockButtons();
         $('.start').html('Click to Continue');
+    }else if(noOfTrials === 60){
+        $('#start').hide();
+        $('#trialsComplete').show();
+        StoreTrialComplete();
     }
 }
 
@@ -125,6 +136,19 @@ $(document).ready(function(){
     ArrangeButtons();
     $(window).on('resize', ArrangeButtons);
 });
+
+function OnClickEnter(){
+    const inputVal = $('#userID').val().trim();
+    if(inputVal === "") {
+        $('.error').html('Please enter a user ID');
+        return;
+    }
+    
+    $('.input-container').hide();
+    $('#start').show();
+    userId = inputVal;
+    $('#userIDDisplay').html('User ID: '+userId);
+}
 
 function ArrangeButtons(){
     const startButton = $('button:nth-child(5)');
@@ -176,6 +200,10 @@ function ArrangeButtons(){
     mlButton.css("left", (centerPos.left + pointOnCircle.x) + 'px');
     mlButton.css("top",  (centerPos.top + pointOnCircle.y) + 'px');
 
+    $('#start').hide();
+    $('#trialsComplete').hide();
+
     $('.start').on('click', Start);
     $('.click').on('click', OnClickTarget);
+    $('#enter').on('click', OnClickEnter);
 }
