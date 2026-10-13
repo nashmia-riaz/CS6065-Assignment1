@@ -1,5 +1,5 @@
  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
-import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import { doc, getFirestore, addDoc, setDoc, getDoc, collection } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 import {
 getAuth,
 signInAnonymously,
@@ -77,10 +77,12 @@ async function StoreData(misclicks, timeTaken){
 }
 
 async function StoreTrialComplete(){
-    await addDoc(
-        collection(db, 'complete'), {
-            user:userId
-        }
+    await setDoc(
+        doc(db, "complete", userId),
+        {
+            complete: true
+        },
+        { merge: true }
     );
 }
 
@@ -101,18 +103,18 @@ function OnClickTarget(e){
     currentState = 'start';
     misclicks=0;
 
-    if(noOfTrials === 20 && blockNo === 1)
+    if(noOfTrials === 21 && blockNo === 1)
     {   noOfTrials = 1;
         blockNo = 2;
         ShowBlockButtons();
         $('.start').html('Click to Continue');
     }
-    else if (noOfTrials === 20 && blockNo === 2)
+    else if (noOfTrials === 21 && blockNo === 2)
     {   noOfTrials = 1;
         blockNo = 3;
         ShowBlockButtons();
         $('.start').html('Click to Continue');
-    }else if(noOfTrials === 20 && blockNo === 3){
+    }else if(noOfTrials === 21 && blockNo === 3){
         noOfTrials = 1;
             $('#start').hide();
             $('#trialsComplete').show();
@@ -140,16 +142,24 @@ $(document).ready(function(){
     $(window).on('resize', ArrangeButtons);
 });
 
-function OnClickEnter(){
+async function OnClickEnter(){
     const inputVal = $('#userID').val().trim();
     if(inputVal === "") {
         $('.error').html('Please enter a user ID');
         return;
     }
+
+    userId = inputVal;
+    const docRef = doc(db, "complete", userId);
+    const docSnap = await getDoc(docRef);
+
+    if(docSnap.exists()) {
+        $('.error').html('User ID '+userId+' has already been used.');
+        return;
+    }
     
     $('.input-container').hide();
     $('#start').show();
-    userId = inputVal;
     $('#userIDDisplay').html('User ID: '+userId);
 }
 
