@@ -68,11 +68,12 @@ async function StoreData(misclicks, timeTaken){
     console.log(misclicks, timeTaken);
     
     await addDoc(
-        collection(db, "data", '002', 'trials'),{
-        block: blockNo,
-        trial: noOfTrials,
-        misclicks: misclicks,
-        timeTaken, timeTaken,
+        collection(db, "data"),{
+            user: "002",
+            block: blockNo,
+            trial: noOfTrials,
+            misclicks: misclicks,
+            timeTaken, timeTaken,
     });
 }
 
