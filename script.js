@@ -1,3 +1,117 @@
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import { getFirestore, addDoc, collection } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+import {
+getAuth,
+signInAnonymously,
+onAuthStateChanged
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-auth.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBU3k4VaQPcUIlpIi-pQzIYl7k2-LFOJ_A",
+  authDomain: "cs6065-assignment1.firebaseapp.com",
+  projectId: "cs6065-assignment1",
+  storageBucket: "cs6065-assignment1.firebasestorage.app",
+  messagingSenderId: "1090653007317",
+  appId: "1:1090653007317:web:5ad329c8e813bd0b2e215c"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+const auth = getAuth(app);
+
+await signInAnonymously(auth);
+
+onAuthStateChanged(auth, user => {
+    console.log(user);
+});
+
+var noOfTrials = 0;
+var blockNo = 1;
+var currentTargetElement = null;
+var clickableButtons = $('.two');
+var currentState = 'start'
+var misclicks = 0;
+var startTime = null;
+
+function Start(e){
+    $('.start').prop('disabled', true);   
+    $('.start').addClass('inactive');
+    $('.start').removeClass('active');
+    $('.start').html('Start');
+
+    const randomIndex = Math.floor(Math.random() * clickableButtons.length)
+    currentTargetElement = clickableButtons.eq(randomIndex);
+    currentTargetElement.addClass('active');
+    currentTargetElement.removeClass('inactive');
+    currentTargetElement.prop('disabled', false);
+
+    currentState = 'target';
+
+    startTime = e.timeStamp;
+}
+
+function ShowBlockButtons(){
+    $('.click').hide();
+
+    if(blockNo === 1)
+        clickableButtons = $('.two');        
+    else if (blockNo === 2){
+        clickableButtons = $('.four');
+    }else if(blockNo === 3){
+        clickableButtons = $('.click');
+    }
+    
+    clickableButtons.show();
+}
+
+async function StoreData(misclicks, timeTaken){
+    console.log(misclicks, timeTaken);
+    
+    await addDoc(
+        collection(db, "data", '002', 'trials'),{
+        block: blockNo,
+        trial: noOfTrials,
+        misclicks: misclicks,
+        timeTaken, timeTaken,
+    });
+}
+
+
+function OnClickTarget(e){
+    StoreData(misclicks, e.timeStamp - startTime);
+
+    $('audio')[0].play();
+    currentTargetElement.prop('disabled', true);
+    currentTargetElement.addClass('inactive');
+    currentTargetElement.removeClass('active');
+
+    $('.start').prop('disabled', false);
+    $('.start').addClass('active');
+    $('.start').removeClass('inactive');
+
+    noOfTrials++;
+    currentState = 'start';
+    misclicks=0;
+
+    if(noOfTrials === 20){
+        blockNo = 2;
+        ShowBlockButtons();
+        $('.start').html('Click to Continue');
+    }
+    else if (noOfTrials === 40)
+    {   
+        blockNo = 3;
+        ShowBlockButtons();
+        $('.start').html('Click to Continue');
+    }
+}
+
+$(document).on('mousedown', function(e){
+    if(currentState === 'start') return;
+    if(!currentTargetElement.is(e.target) && currentTargetElement.has(e.target).length ===0 )
+        misclicks++;
+});
+
 
 function getPointOnCircle(radius, angle){
     const x = radius * Math.cos(angle * Math.PI/180);
@@ -5,8 +119,6 @@ function getPointOnCircle(radius, angle){
 
     return {x: x, y: y};
 }
-
-
 
 $(document).ready(function(){
     ArrangeButtons();
@@ -62,71 +174,7 @@ function ArrangeButtons(){
     pointOnCircle = getPointOnCircle(radius, 135+45);
     mlButton.css("left", (centerPos.left + pointOnCircle.x) + 'px');
     mlButton.css("top",  (centerPos.top + pointOnCircle.y) + 'px');
+
+    $('.start').on('click', Start);
+    $('.click').on('click', OnClickTarget);
 }
-
-var noOfTrials = 0;
-var blockNo = 1;
-var currentTargetElement = null;
-var clickableButtons = $('.two');
-var currentState = 'start'
-
-function Start(){
-    $('.start').prop('disabled', true);   
-    $('.start').addClass('inactive');
-    $('.start').removeClass('active');
-    $('.start').html('Start');
-
-    const randomIndex = Math.floor(Math.random() * clickableButtons.length)
-    currentTargetElement = clickableButtons.eq(randomIndex);
-    currentTargetElement.addClass('active');
-    currentTargetElement.removeClass('inactive');
-    currentTargetElement.prop('disabled', false);
-
-    currentState = 'target';
-}
-
-function ShowBlockButtons(){
-    $('.click').hide();
-
-    if(blockNo === 1)
-        clickableButtons = $('.two');        
-    else if (blockNo === 2){
-        clickableButtons = $('.four');
-    }else if(blockNo === 3){
-        clickableButtons = $('.click');
-    }
-    
-    clickableButtons.show();
-}
-
-function OnClickTarget(){
-    $('audio')[0].play();
-    currentTargetElement.prop('disabled', true);
-    currentTargetElement.addClass('inactive');
-    currentTargetElement.removeClass('active');
-
-    $('.start').prop('disabled', false);
-    $('.start').addClass('active');
-    $('.start').removeClass('inactive');
-
-    noOfTrials++;
-    currentState = 'start';
-
-    if(noOfTrials === 20){
-        blockNo = 2;
-        ShowBlockButtons();
-        $('.start').html('Click to Continue');
-    }
-    else if (noOfTrials === 40)
-    {   
-        blockNo = 3;
-        ShowBlockButtons();
-        $('.start').html('Click to Continue');
-    }
-}
-
-$(document).on('mousedown', function(e){
-    if(currentState === 'start') return;
-    if(!currentTargetElement.is(e.target) && currentTargetElement.has(e.target).length ===0 )
-        console.log('misclick');
-});
